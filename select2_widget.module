@@ -1,0 +1,87 @@
+<?php
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function select2_widget_field_widget_info() {
+  $widgets['select2_widget'] = array(
+    'label' => t('Select2'),
+    'description' => t('Widget for using Select2 in entity references.'),
+    'field types' => array('entityreference'),
+    'behaviors' => array(
+      'multiple values' => FIELD_BEHAVIOR_CUSTOM,
+    ),
+  );
+
+  return $widgets;
+}
+
+/**
+ * Implements hook_field_widget_settings_form().
+ */
+function select2_widget_field_widget_settings_form($field, $instance) {
+  $form = array();
+  if ($instance['widget']['type'] == 'select2_widget') {
+    $form['placeholder'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Placeholder for Select2'),
+    );
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function select2_widget_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $value_key = key($field['columns']);
+
+  $type = str_replace('options_', '', $instance['widget']['type']);
+  $multiple = $field['cardinality'] > 1 || $field['cardinality'] == FIELD_CARDINALITY_UNLIMITED;
+  $required = $element['#required'];
+  $has_value = isset($items[0][$value_key]);
+  $properties = _options_properties($type, $multiple, $required, $has_value);
+
+  $entity_type = $element['#entity_type'];
+  $entity = $element['#entity'];
+
+  // Prepare the list of options.
+  $options = _options_get_options($field, $instance, $properties, $entity_type, $entity);
+
+  // Put current field values in shape.
+  $default_value = _options_storage_to_form($items, $options, $value_key, $properties);
+
+  $element += array(
+    '#type' => 'select',
+    '#default_value' => $default_value,
+    // Do not display a 'multiple' select box if there is only one option.
+    '#multiple' => $multiple && count($options) > 1,
+    '#options' => $options,
+    //'#attributes' => array('class' => array('select2')),
+    '#value_key' => $value_key,
+    '#element_validate' => array('options_field_widget_validate'),
+    '#properties' => $properties,
+    '#after_build' => array('select2_widget_field_widget_after_build'),
+    '#cardinality' => $field['cardinality'],
+    '#instance' => $instance,
+  );
+
+  drupal_add_css(drupal_get_path('module', 'select2_widget') . '/css/select2.css');
+  drupal_add_css(drupal_get_path('module', 'select2_widget') . '/css/select2-widget.css');
+  drupal_add_js(drupal_get_path('module', 'select2_widget') . '/js/select2.js');
+  drupal_add_js(drupal_get_path('module', 'select2_widget') . '/js/select2-widget.js');
+
+  return $element;
+}
+
+function select2_widget_field_widget_after_build($element, &$form_state) {
+  $setting = array(
+    'selector' => $element['#id'],
+    'placeholder' => !empty($element['#instance']['widget']['settings']['placeholder']) ? $element['#instance']['widget']['settings']['placeholder'] : '',
+    'cardinality' => $element['#cardinality'],
+  );
+
+  drupal_add_js(array('select2_widget' => $setting), 'setting');
+
+  return $element;
+}

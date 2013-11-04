@@ -1,0 +1,4 @@
+name = Select2 Widget
+description = "Allows using Select2 widget on entity reference."
+core = 7.x
+package = Fields
