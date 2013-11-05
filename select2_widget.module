@@ -23,6 +23,11 @@ function select2_widget_field_widget_options_select_form_alter(&$element, &$form
 }
 
 function select2_widget_field_widget_after_build($element, &$form_state) {
+  if ($element['#cardinality'] == 1) {
+    // If limited to a single value, do not use Select2.
+    return $element;
+  }
+
   $setting = drupal_static('__FUNCTION__', array());
 
   $setting[] = array(
