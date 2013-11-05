@@ -24,7 +24,9 @@ function select2_widget_field_widget_options_select_form_alter(&$element, &$form
 }
 
 function select2_widget_field_widget_after_build($element, &$form_state) {
-  $setting = array(
+  $setting = drupal_static('__FUNCTION__', array());
+
+  $setting[] = array(
     'selector' => '#' . $element['#id'],
     'placeholder' => !empty($element['#instance']['widget']['settings']['placeholder']) ? $element['#instance']['widget']['settings']['placeholder'] : '',
     'cardinality' => $element['#cardinality'],

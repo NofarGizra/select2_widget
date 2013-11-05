@@ -4,14 +4,21 @@
 
     attach: function (context, settings) {
 
-      var selector = Drupal.settings.select2_widget.selector;
-      var cardinality = Drupal.settings.select2_widget.cardinality;
-      var placeholder = Drupal.settings.select2_widget.placeholder;
+      var elements = Drupal.settings.select2_widget;
+      var element;
 
-      $(selector).select2({
-        placeholder: placeholder,
-        maximumSelectionSize: cardinality
-      });
+      for (var key in elements) {
+        element = elements[key];
+
+        var selector = element.selector;
+        var cardinality = element.cardinality;
+        var placeholder = element.placeholder;
+
+        $(selector).select2({
+          placeholder: placeholder,
+          maximumSelectionSize: cardinality
+        });
+      }
 
     }
   }
