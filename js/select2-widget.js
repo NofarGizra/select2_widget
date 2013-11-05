@@ -12,10 +12,8 @@
 
         var selector = element.selector;
         var cardinality = element.cardinality;
-        var placeholder = element.placeholder;
 
         $(selector).select2({
-          placeholder: placeholder,
           maximumSelectionSize: cardinality
         });
       }
